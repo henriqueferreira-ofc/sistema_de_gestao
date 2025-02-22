@@ -1,4 +1,4 @@
-Flask
+flask==2.3.2
 gspread
 oauth2client
 pandas
@@ -6,8 +6,5 @@ matplotlib
 seaborn
 waitress
 openpyxl
-pytest>=7.0.0
-dash>=2.0.0
-plotly>=5.0.0
 
 
