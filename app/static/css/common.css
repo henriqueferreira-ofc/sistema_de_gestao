@@ -1,0 +1,30 @@
+/* Estilos comuns a todas as páginas */
+.navbar {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+  font-weight: 600;
+}
+
+.nav-link {
+  transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+  color: #007bff !important;
+}
+
+.container {
+  padding: 20px;
+}
+
+.page-title {
+  margin-bottom: 30px;
+  color: #343a40;
+}
+
+.alert {
+  border-radius: 8px;
+  margin: 20px 0;
+}

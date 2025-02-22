@@ -1,0 +1,31 @@
+/* Estilos específicos para a página inicial */
+.welcome-section {
+  padding: 40px 0;
+  text-align: center;
+}
+
+.feature-card {
+  padding: 20px;
+  margin: 15px 0;
+  border-radius: 8px;
+  transition: transform 0.3s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+}
+
+.feature-icon {
+  font-size: 2em;
+  margin-bottom: 15px;
+  color: #007bff;
+}
+
+.main-title {
+  color: #343a40;
+  margin-bottom: 30px;
+}
+
+.feature-description {
+  color: #6c757d;
+}

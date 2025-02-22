@@ -1,0 +1,10 @@
+Flask
+gspread
+oauth2client
+pandas
+matplotlib
+seaborn
+waitress
+openpyxl
+
+
