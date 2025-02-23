@@ -9,6 +9,9 @@ import openpyxl
 from openpyxl.styles import Font, PatternFill
 from datetime import datetime
 import os
+import seaborn as sns
+import logging
+from logging.handlers import RotatingFileHandler
 
 app = Flask(__name__)
 
@@ -29,12 +32,34 @@ FORM_SHEETS = {
     "Samambaia": SHEET.worksheet("Samambaia"),
 }
 
+def setup_logger():
+    logger = logging.getLogger('app')
+    logger.setLevel(logging.INFO)
+    handler = RotatingFileHandler('app.log', maxBytes=10000, backupCount=3)
+    formatter = logging.Formatter(
+        '[%(asctime)s] %(levelname)s in %(module)s: %(message)s'
+    )
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    return logger
+
+logger = setup_logger()
+
 @app.route("/")
 def pagina_inicial():
     return render_template("index.html")
 
 @app.route("/visualizar")
 def gerar_grafico():
+    """
+    Gera visualizações gráficas dos dados coletados.
+    
+    Returns:
+        str: Template HTML renderizado com os gráficos gerados
+        
+    Raises:
+        Exception: Se houver erro na geração dos gráficos
+    """
     try:
         dados_consolidados = []
         graficos = {}
@@ -69,14 +94,18 @@ def gerar_grafico():
         df = pd.DataFrame(dados_consolidados)
         print("Colunas encontradas:", df.columns.tolist())  # Debug
 
-        # Gráfico 1: Tipos de Deficiência
-        plt.figure(figsize=(10, 6))
+        # Configurar um estilo mais profissional para os gráficos
+        plt.style.use('seaborn')
+        sns.set_palette("husl")  # Paleta de cores mais profissional
+
+        # Adicionar formatação mais detalhada aos gráficos
+        plt.figure(figsize=(12, 6))
         df_def = df['deficiencia'].value_counts()
         sns.barplot(x=df_def.index, y=df_def.values)
-        plt.xticks(rotation=45, ha='right')
-        plt.title('Quantidade de Pessoas por Deficiência')
-        plt.xlabel('Tipo de Deficiência')
-        plt.ylabel('Quantidade')
+        plt.title('Quantidade de Pessoas por Deficiência', pad=20, fontsize=14)
+        plt.xlabel('Tipo de Deficiência', fontsize=12)
+        plt.ylabel('Quantidade', fontsize=12)
+        plt.grid(True, alpha=0.3)
         img = io.BytesIO()
         plt.savefig(img, format='png', bbox_inches='tight')
         img.seek(0)
@@ -139,6 +168,8 @@ def diagnostico():
         for form_name, worksheet in FORM_SHEETS.items():
             try:
                 registros = worksheet.get_all_records()
+                if registros:
+                    print("Colunas disponíveis no Forms:", list(registros[0].keys()))
                 resultados[form_name] = f"Número de registros: {len(registros)}<br>Colunas disponíveis: {list(registros[0].keys()) if registros else 'Sem registros'}"
             except Exception as e:
                 resultados[form_name] = f"Erro ao acessar {form_name}: {str(e)}"
@@ -156,7 +187,7 @@ def visualizar_dados():
             "Qual seu telefone",
             "Cidade",
             "Qual o tipo de deficiência",
-            "Você conhece todos os atendimentos e serviços oferecidos pela SEPd",
+            "Você conhece todos os atendimentos e serviços oferecidos pela SEPD (Secretaria da Pessoa com Deficiência)?",
             "Qual benefício você precisa",
             "Você ficou sabendo da Carreta da Inclusão",
             "Se sim, por quem",
@@ -174,7 +205,7 @@ def visualizar_dados():
                         if coluna.lower() in chave.lower():
                             valor = registro[chave]
                             break
-                    dado_formatado[coluna] = valor or ''
+                    dado_formatado[coluna] = valor
                 todos_dados.append(dado_formatado)
 
         return render_template("dados.html", todos_dados=todos_dados)
@@ -193,7 +224,7 @@ def exportar_excel():
             "Qual seu telefone",
             "Cidade",
             "Qual o tipo de deficiência",
-            "Você conhece todos os atendimentos e serviços oferecidos pela SEPd",
+            "Você conhece todos os atendimentos e serviços oferecidos pela SEPD (Secretaria da Pessoa com Deficiência)?",
             "Qual benefício você precisa",
             "Você ficou sabendo da Carreta da Inclusão",
             "Se sim, por quem",
@@ -210,7 +241,7 @@ def exportar_excel():
                         if coluna.lower() in chave.lower():
                             valor = registro[chave]
                             break
-                    dado_formatado[coluna] = valor or ''
+                    dado_formatado[coluna] = valor
                 todos_dados.append(dado_formatado)
 
         wb = openpyxl.Workbook()
@@ -266,6 +297,56 @@ def exportar_excel():
         import traceback
         erro = traceback.format_exc()
         return f"Erro ao exportar dados: {erro}", 500
+
+@app.route("/analytics")
+def analytics():
+    try:
+        # Análise de tendências
+        dados_por_mes = df.groupby(pd.Grouper(freq='M')).count()
+        
+        # Análise comparativa entre regiões
+        comparativo_regioes = df.groupby('Origem').agg({
+            'deficiencia': 'count',
+            'interesse_politica': lambda x: (x == 'Sim').sum()
+        })
+        
+        # Calcular métricas importantes
+        total_atendimentos = len(df)
+        media_por_regiao = df.groupby('Origem').size().mean()
+        
+        return render_template(
+            "analytics.html",
+            metricas={
+                'total_atendimentos': total_atendimentos,
+                'media_por_regiao': media_por_regiao,
+                'dados_por_mes': dados_por_mes.to_dict(),
+                'comparativo_regioes': comparativo_regioes.to_dict()
+            }
+        )
+    except Exception as e:
+        return f"Erro na análise: {str(e)}"
+
+@app.route("/exportar_relatorio")
+def exportar_relatorio():
+    try:
+        # Criar relatório PDF com ReportLab ou WeasyPrint
+        # Incluir gráficos, tabelas e análises
+        # Adicionar marca d'água e cabeçalho oficial
+        pass
+    except Exception as e:
+        return f"Erro ao gerar relatório: {str(e)}"
+
+@app.route("/api/dados", methods=['GET'])
+def api_dados():
+    try:
+        dados = {
+            'total_atendimentos': len(df),
+            'por_regiao': df.groupby('Origem').size().to_dict(),
+            'por_deficiencia': df['deficiencia'].value_counts().to_dict()
+        }
+        return jsonify(dados)
+    except Exception as e:
+        return jsonify({'erro': str(e)}), 500
 
 if __name__ == "__main__":
     from waitress import serve

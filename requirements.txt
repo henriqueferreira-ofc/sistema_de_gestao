@@ -6,5 +6,6 @@ matplotlib
 seaborn
 waitress
 openpyxl
+pytest>=7.0.0
 
 
