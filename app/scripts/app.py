@@ -302,17 +302,17 @@ def exportar_excel():
 def analytics():
     try:
         # Análise de tendências
-        dados_por_mes = df.groupby(pd.Grouper(freq='M')).count()
+        dados_por_mes = df.groupby(pd.Grouper(freq='M')).count() # type: ignore
         
         # Análise comparativa entre regiões
-        comparativo_regioes = df.groupby('Origem').agg({
+        comparativo_regioes = df.groupby('Origem').agg({ # type: ignore
             'deficiencia': 'count',
             'interesse_politica': lambda x: (x == 'Sim').sum()
         })
         
         # Calcular métricas importantes
-        total_atendimentos = len(df)
-        media_por_regiao = df.groupby('Origem').size().mean()
+        total_atendimentos = len(df) # type: ignore
+        media_por_regiao = df.groupby('Origem').size().mean() # type: ignore
         
         return render_template(
             "analytics.html",
@@ -340,9 +340,9 @@ def exportar_relatorio():
 def api_dados():
     try:
         dados = {
-            'total_atendimentos': len(df),
-            'por_regiao': df.groupby('Origem').size().to_dict(),
-            'por_deficiencia': df['deficiencia'].value_counts().to_dict()
+            'total_atendimentos': len(df), # type: ignore
+            'por_regiao': df.groupby('Origem').size().to_dict(), # type: ignore
+            'por_deficiencia': df['deficiencia'].value_counts().to_dict() # type: ignore
         }
         return jsonify(dados)
     except Exception as e:
