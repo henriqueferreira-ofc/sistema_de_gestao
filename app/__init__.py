@@ -5,6 +5,10 @@ def create_app():
                 template_folder='templates',  
                 static_folder='static')
     
+    with app.app_context():
+        from .scripts import dashboard
+        app = dashboard.init_dashboard(app)
+    
     # Registrar blueprints
     from app.routes.main_routes import main_bp
     from app.routes.graph_routes import graph_bp
@@ -16,4 +20,4 @@ def create_app():
     app.register_blueprint(diagnostic_bp)
     app.register_blueprint(data_bp)
     
-    return app 
+    return app
