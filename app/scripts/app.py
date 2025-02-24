@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, send_file
+from flask import Flask, render_template, request, jsonify, send_file, redirect, url_for
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
@@ -12,6 +12,8 @@ import os
 import seaborn as sns
 import logging
 from logging.handlers import RotatingFileHandler
+from dashboard import dash_app
+from dash import Dash
 
 app = Flask(__name__)
 
@@ -46,8 +48,8 @@ def setup_logger():
 logger = setup_logger()
 
 @app.route("/")
-def pagina_inicial():
-    return render_template("index.html")
+def index():
+    return redirect('/dashboard/')
 
 @app.route("/visualizar")
 def gerar_grafico():
@@ -72,7 +74,8 @@ def gerar_grafico():
                     'deficiencia': None,
                     'atendimento': 'Atendido',  # Valor padrão para contagem
                     'interesse_politica': None,
-                    'pontos_melhoria': None
+                    'pontos_melhoria': None,
+                    'cidade': form  # Adiciona a cidade (que é o nome do form)
                 }
                 
                 for coluna in registro.keys():
@@ -123,17 +126,74 @@ def gerar_grafico():
         graficos["Atendimentos"] = base64.b64encode(img.getvalue()).decode()
         plt.close()
 
-        # Gráfico 3: Interesse em Política
+        # Gráfico de Interesse em Política
         if 'interesse_politica' in df.columns and df['interesse_politica'].notna().any():
-            plt.figure(figsize=(10, 6))
-            df_pol = df['interesse_politica'].value_counts()
-            sns.barplot(x=df_pol.index, y=df_pol.values)
-            plt.xticks(rotation=45, ha='right')
-            plt.title('Interesse em Política')
-            plt.xlabel('Resposta')
-            plt.ylabel('Quantidade')
+            plt.figure(figsize=(15, 12))
+            
+            # Subplot 1: Gráfico total de Sim/Não
+            plt.subplot(3, 1, 1)
+            total_interesse = df['interesse_politica'].value_counts()
+            ax = sns.barplot(x=total_interesse.index, y=total_interesse.values)
+            plt.title('Interesse em Política - Total Geral', pad=20, fontsize=14)
+            plt.xlabel('Resposta', fontsize=12)
+            plt.ylabel('Quantidade', fontsize=12)
+            
+            # Adicionar valores nas barras
+            for i, v in enumerate(total_interesse.values):
+                plt.text(i, v, str(v), ha='center', va='bottom')
+            
+            # Subplot 2: Gráfico por cidade
+            plt.subplot(3, 1, 2)
+            df_cidade = pd.crosstab(df['cidade'], df['interesse_politica'])
+            ax = df_cidade.plot(kind='bar', ax=plt.gca())
+            plt.title('Interesse em Política por Cidade', pad=20, fontsize=14)
+            plt.xlabel('Cidade', fontsize=12)
+            plt.ylabel('Quantidade', fontsize=12)
+            plt.legend(title='Resposta')
+            plt.xticks(rotation=45)
+            
+            # Adicionar valores em cada barra
+            for container in ax.containers:
+                ax.bar_label(container)
+            
+            # Subplot 3: Tabela com valores
+            plt.subplot(3, 1, 3)
+            plt.axis('off')
+            
+            # Criar tabela com os dados
+            cell_text = []
+            rows = []
+            for cidade in df_cidade.index:
+                row = [
+                    cidade,
+                    df_cidade.loc[cidade, 'Sim'] if 'Sim' in df_cidade.columns else 0,
+                    df_cidade.loc[cidade, 'Não'] if 'Não' in df_cidade.columns else 0,
+                    df_cidade.loc[cidade].sum()
+                ]
+                cell_text.append(row)
+                rows.append(cidade)
+            
+            # Adicionar linha com totais
+            totals = ['Total',
+                     df_cidade['Sim'].sum() if 'Sim' in df_cidade.columns else 0,
+                     df_cidade['Não'].sum() if 'Não' in df_cidade.columns else 0,
+                     df_cidade.values.sum()]
+            cell_text.append(totals)
+            
+            table = plt.table(cellText=cell_text,
+                            colLabels=['Cidade', 'Sim', 'Não', 'Total'],
+                            loc='center',
+                            cellLoc='center')
+            table.auto_set_font_size(False)
+            table.set_fontsize(9)
+            table.scale(1.2, 1.5)
+            
+            # Ajustar layout
+            plt.tight_layout()
+            
+            # Salvar gráfico
             img = io.BytesIO()
-            plt.savefig(img, format='png', bbox_inches='tight')
+            plt.savefig(img, format='png', bbox_inches='tight', dpi=300)
             img.seek(0)
             graficos["Interesse em Política"] = base64.b64encode(img.getvalue()).decode()
             plt.close()
@@ -348,9 +408,12 @@ def api_dados():
     except Exception as e:
         return jsonify({'erro': str(e)}), 500
 
+@app.route('/dashboard')
+def dashboard():
+    return dash_app.index()
+
 if __name__ == "__main__":
-    from waitress import serve
-    serve(app, host='0.0.0.0', port=8080)
+    app.run(debug=True)
 
     #http://127.0.0.1:8080
     #python run.py
