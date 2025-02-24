@@ -19,7 +19,7 @@ def init_dashboard(server):
                     'Cidade de Origem': form_name,
                     'deficiencia': None,
                     'interesse_politica': None,
-                    'conhece_servicos': None
+                    'conhece_atendimentos': None  # Atualizado para "conhece_atendimentos"
                 }
 
                 for coluna in registro.keys():
@@ -27,8 +27,8 @@ def init_dashboard(server):
                         dados_registro['deficiencia'] = registro[coluna]
                     elif any(termo in coluna.lower() for termo in ["política", "politica"]):
                         dados_registro['interesse_politica'] = registro[coluna]
-                    elif "conhece" in coluna.lower() and "serviços" in coluna.lower():
-                        dados_registro['conhece_servicos'] = registro[coluna]
+                    elif "conhece" in coluna.lower() and "atendimentos" in coluna.lower():  # Atualizado para "atendimentos"
+                        dados_registro['conhece_atendimentos'] = registro[coluna]  # Atualizado para "conhece_atendimentos"
 
                 dados_consolidados.append(dados_registro)
 
@@ -74,7 +74,7 @@ def init_dashboard(server):
                 html.H4(id='total-interesse')
             ], className='kpi-box'),
             html.Div([
-                html.H3('Conhecem os Serviços'),
+                html.H3('Conhece os Atendimentos'),  # Atualizado para "Conhece os Atendimentos"
                 html.H4(id='total-conhece')
             ], className='kpi-box')
         ], style={'display': 'flex', 'justifyContent': 'space-around', 'margin': '20px 0'}),
@@ -88,6 +88,12 @@ def init_dashboard(server):
                 dcc.Graph(id='deficiencia-graph')
             ], style={'width': '48%'})
         ], style={'display': 'flex', 'justifyContent': 'space-between'}),
+
+        # Gráfico de Conhecimento dos Atendimentos
+        html.Div([
+            html.H3('Conhecimento dos Atendimentos'),
+            dcc.Graph(id='conhece-atendimentos-graph')
+        ], style={'width': '100%', 'margin': '20px 0'}),
 
         # Tabela detalhada
         html.Div([
@@ -103,6 +109,7 @@ def init_dashboard(server):
          Output('total-conhece', 'children'),
          Output('interesse-politica-graph', 'figure'),
          Output('deficiencia-graph', 'figure'),
+         Output('conhece-atendimentos-graph', 'figure'),
          Output('cidade-table', 'figure')],
         [Input('cidade-filter', 'value')]
     )
@@ -118,6 +125,7 @@ def init_dashboard(server):
                 "N/A",
                 go.Figure(),
                 go.Figure(),
+                go.Figure(),
                 go.Figure()
             )
 
@@ -126,7 +134,7 @@ def init_dashboard(server):
         # KPIs
         total_atendimentos = len(df_filtered)
         total_interesse = len(df_filtered[df_filtered['interesse_politica'] == 'Sim'])
-        total_conhece = len(df_filtered[df_filtered['conhece_servicos'] == 'Sim'])
+        total_conhece = len(df_filtered[df_filtered['conhece_atendimentos'] == 'Sim']) + len(df_filtered[df_filtered['conhece_atendimentos'] == 'Não'])  # Atualizado para "conhece_atendimentos"
 
         # Gráfico de Interesse em Política
         fig_interesse = px.bar(
@@ -137,25 +145,44 @@ def init_dashboard(server):
         )
 
         # Gráfico de Tipos de Deficiência
-        fig_deficiencia = px.pie(
-            df_filtered,
-            names='deficiencia',
-            title='Distribuição por Tipo de Deficiência'
+        deficiencia_counts = df_filtered['deficiencia'].value_counts().reset_index()
+        deficiencia_counts.columns = ['deficiencia', 'count']
+        fig_deficiencia = px.bar(
+            deficiencia_counts,
+            x='deficiencia',
+            y='count',
+            title='Distribuição por Tipo de Deficiência',
+            labels={'deficiencia': 'Tipo de Deficiência', 'count': 'Quantidade'},
+            color='deficiencia',
+            barmode='group'
+        )
+
+        # Gráfico de Conhecimento dos Atendimentos
+        conhece_atendimentos_counts = df_filtered['conhece_atendimentos'].value_counts().reset_index()
+        conhece_atendimentos_counts.columns = ['conhece_atendimentos', 'count']
+        fig_conhece_atendimentos = px.bar(
+            conhece_atendimentos_counts,
+            x='conhece_atendimentos',
+            y='count',
+            title='Conhecimento dos Atendimentos',
+            labels={'conhece_atendimentos': 'Conhece Atendimentos', 'count': 'Quantidade'},
+            color='conhece_atendimentos',
+            barmode='group'
         )
 
         # Tabela detalhada
         table_data = df_filtered.groupby('Cidade de Origem').agg({
             'interesse_politica': lambda x: (x == 'Sim').sum(),
-            'conhece_servicos': lambda x: (x == 'Sim').sum(),
+            'conhece_atendimentos': lambda x: (x == 'Sim').sum(),  # Atualizado para "conhece_atendimentos"
         }).reset_index()
 
         fig_table = go.Figure(data=[go.Table(
-            header=dict(values=['Cidade de Origem', 'Interesse em Política', 'Conhece Serviços'],
+            header=dict(values=['Cidade de Origem', 'Interesse em Política', 'Conhece Atendimentos'],  # Atualizado para "Conhece Atendimentos"
                        fill_color='paleturquoise',
                        align='left'),
             cells=dict(values=[table_data['Cidade de Origem'],
                               table_data['interesse_politica'],
-                              table_data['conhece_servicos']],
+                              table_data['conhece_atendimentos']],  # Atualizado para "conhece_atendimentos"
                        fill_color='lavender',
                        align='left'))
         ])
@@ -166,6 +193,7 @@ def init_dashboard(server):
             f"{total_conhece:,}",
             fig_interesse,
             fig_deficiencia,
+            fig_conhece_atendimentos,
             fig_table
         )
 
