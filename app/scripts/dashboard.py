@@ -14,6 +14,7 @@ def init_dashboard(server):
         dados_consolidados = []
         for form_name, worksheet in FORM_SHEETS.items():
             registros = worksheet.get_all_records()
+            print(f"Processando dados para: {form_name}")  # Adiciona log para verificar a cidade sendo processada
             for registro in registros:
                 dados_registro = {
                     'Cidade de Origem': form_name,
@@ -27,9 +28,10 @@ def init_dashboard(server):
                         dados_registro['deficiencia'] = registro[coluna]
                     elif any(termo in coluna.lower() for termo in ["política", "politica"]):
                         dados_registro['interesse_politica'] = registro[coluna]
-                    elif "conhece" in coluna.lower() and "atendimentos" in coluna.lower():  # Atualizado para "atendimentos"
+                    elif "você conhece todos os atendimentos e serviços oferecidos pela sepd" in coluna.lower():  # Atualizado para "conhece_atendimentos"
                         dados_registro['conhece_atendimentos'] = registro[coluna]  # Atualizado para "conhece_atendimentos"
 
+                print(f"Dados registro para {form_name}: {dados_registro}")  # Adiciona log para verificar os dados do registro
                 dados_consolidados.append(dados_registro)
 
         df = pd.DataFrame(dados_consolidados)
