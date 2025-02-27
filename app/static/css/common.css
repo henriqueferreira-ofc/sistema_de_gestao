@@ -1,18 +1,21 @@
 /* Estilos comuns a todas as páginas */
 .navbar {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: #0d6efd; /* Cor azul */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.61);
 }
 
 .navbar-brand {
   font-weight: 600;
+  color: white; /* Cor branca para o texto */
 }
 
 .nav-link {
+  color: white; /* Cor branca para os links */
   transition: color 0.3s ease;
 }
 
 .nav-link:hover {
-  color: #007bff !important;
+  color: #2980b9 !important; /* Cor azul escuro ao passar o mouse */
 }
 
 .container {
