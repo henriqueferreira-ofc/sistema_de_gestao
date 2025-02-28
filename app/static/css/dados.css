@@ -59,3 +59,56 @@
   padding: 4px 8px;
   font-size: 14px;
 }
+
+/* Estilo base para todos os botões do DataTables */
+.dt-button {
+  background-color: #0d6efd !important; /* Fundo azul */
+  color: white !important; /* Letras brancas */
+  border: none;
+  padding: 10px 15px;
+  margin: 5px;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+/* Efeito.hover para todos os botões */
+.dt-button:hover {
+  background-color: #2980b9 !important; /* Azul escuro no hover */
+  color: white !important; /* Mantém texto branco */
+}
+
+/* Estilos específicos para cada botão (opcional) */
+.buttons-copy {
+  background-color: #0d6efd !important; /* Fundo azul para o botão Copy */
+  color: white !important;
+}
+
+.buttons-csv {
+  background-color: #0d6efd !important; /* Fundo azul para o botão CSV */
+  color: white !important;
+}
+
+.buttons-excel {
+  background-color: #0d6efd !important; /* Fundo azul para o botão Excel */
+  color: white !important;
+}
+
+.buttons-pdf {
+  background-color: #0d6efd !important; /* Fundo azul para o botão PDF */
+  color: white !important;
+}
+
+.buttons-print {
+  background-color: #0d6efd !important; /* Fundo azul para o botão Print */
+  color: white !important;
+}
+
+/* Efeito hover específico para cada botão (opcional) */
+.buttons-copy:hover,
+.buttons-csv:hover,
+.buttons-excel:hover,
+.buttons-pdf:hover,
+.buttons-print:hover {
+  background-color: #2980b9 !important; /* Azul escuro no hover */
+  color: white !important;
+}

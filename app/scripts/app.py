@@ -14,8 +14,15 @@ import logging
 from logging.handlers import RotatingFileHandler
 from dashboard import dash_app
 from dash import Dash
+from flask import Flask, render_template
+from flask import Flask
+from app.routes.diagnostic import diagnostic_bp
 
 app = Flask(__name__)
+app.register_blueprint(diagnostic_bp)
+
+if __name__ == '__main__':
+    app.run(debug=True)
 
 # Configuração do Google Sheets
 SCOPE = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
@@ -221,21 +228,27 @@ def gerar_grafico():
         print(f"Erro ao gerar gráfico: {erro}")
         return f"<pre>Erro: {erro}</pre>"
 
-@app.route("/diagnostico")
-def diagnostico():
-    try:
-        resultados = {}
-        for form_name, worksheet in FORM_SHEETS.items():
-            try:
-                registros = worksheet.get_all_records()
-                if registros:
-                    print("Colunas disponíveis no Forms:", list(registros[0].keys()))
-                resultados[form_name] = f"Número de registros: {len(registros)}<br>Colunas disponíveis: {list(registros[0].keys()) if registros else 'Sem registros'}"
-            except Exception as e:
-                resultados[form_name] = f"Erro ao acessar {form_name}: {str(e)}"
-        return render_template("diagnostico.html", resultados=resultados)
-    except Exception as e:
-        return f"Erro no diagnóstico: {str(e)}"
+@app.route('/diagnostico-pagina')
+def diagnostico_pagina():
+    dados = [
+        {
+            "1 - Qual seu nome?": "João",
+            "2 - Qual seu Telefone?": "123456789",
+            "3 - Cidade": "São Paulo",
+            "4 - Qual o tipo de deficiência?": "Visual",
+            "5 - Você conhece todos os atendimentos e serviços oferecidos pela SEPD (Secretaria da Pessoa com Deficiência)?": "Não",
+            "6 - Qual benefício você precisa?": "Acessibilidade",
+            "7 - Você ficou sabendo da Carreta da Inclusão?": "Sim",
+            "8 - Se sim, por quem?": "Amigo",
+            "9 - Se interessa por política?": "Sim",
+            "Carimbo de data/hora": "2025-02-28 10:00:00"
+        },
+        # Mais registros...
+    ]
+    return render_template('diagnostico.html', dados=dados)
+
+if __name__ == '__main__':
+    app.run(debug=True)
 
 @app.route("/dados")
 def visualizar_dados():

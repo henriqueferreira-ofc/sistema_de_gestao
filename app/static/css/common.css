@@ -1,7 +1,7 @@
 /* Estilos comuns a todas as páginas */
 .navbar {
   background-color: #0d6efd; /* Cor azul */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.61);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .navbar-brand {
@@ -15,7 +15,7 @@
 }
 
 .nav-link:hover {
-  color: #2980b9 !important; /* Cor azul escuro ao passar o mouse */
+  color: #ffff !important; /* Cor azul escuro ao passar o mouse */
 }
 
 .container {
@@ -24,10 +24,26 @@
 
 .page-title {
   margin-bottom: 30px;
-  color: #343a40;
+  color: #0d6efd;
 }
 
 .alert {
   border-radius: 8px;
   margin: 20px 0;
+}
+
+/* Estilos para os botões DataTables */
+.dt-button {
+  background-color: #3498db !important; /* Cor azul */
+  color: white !important; /* Letras brancas */
+  border: none;
+  padding: 10px 15px;
+  margin: 5px;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.dt-button:hover {
+  background-color: #2980b9 !important; /* Cor azul escuro */
+  color: white !important; /* Letras brancas */
 }

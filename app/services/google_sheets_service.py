@@ -1,9 +1,11 @@
 import os
-from oauth2client.service_account import ServiceAccountCredentials
 import gspread
+from oauth2client.service_account import ServiceAccountCredentials
+import logging
 
-# Defina o escopo (SCOPE) para acessar o Google Sheets e Google Drive
-SCOPE = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+# Configuração de logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Caminho para o arquivo credentials.json
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # Diretório raiz do projeto
@@ -13,45 +15,78 @@ CREDS_PATH = os.path.join(BASE_DIR, "google_sheets", "credentials.json")
 if not os.path.exists(CREDS_PATH):
     raise FileNotFoundError(f"Arquivo {CREDS_PATH} não encontrado!")
 
-# Autentique com o Google Sheets usando as credenciais
-CREDS = ServiceAccountCredentials.from_json_keyfile_name(CREDS_PATH, SCOPE)
-CLIENT = gspread.authorize(CREDS)
-
-# Função para obter dados do Google Sheets
-def obter_dados_do_sheets(nome_planilha, nome_aba):
-    try:
-        planilha = CLIENT.open(nome_planilha)
-        aba = planilha.worksheet(nome_aba)
-        dados = aba.get_all_records()
-        return dados
-    except Exception as e:
-        print(f"Erro ao acessar o Google Sheets: {e}")
-        print("Caminho do credentials.json:", CREDS_PATH)
-        return None
+# Defina o escopo (SCOPE) para acessar o Google Sheets e Google Drive
+SCOPE = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 
 def diagnosticar_planilhas():
     """
-    Função para diagnosticar o acesso às planilhas do Google Sheets
+    Função para diagnosticar e coletar dados de planilhas do Google Sheets.
+    Retorna uma lista de registros coletados das abas especificadas.
     """
     try:
-        # Tenta abrir a planilha para verificar se está funcionando
-        sheet = CLIENT.open("RespostasForm")  # Substitua pelo nome da sua planilha
-        worksheet = sheet.sheet1
+        # Autenticação com o Google Sheets
+        creds = ServiceAccountCredentials.from_json_keyfile_name(CREDS_PATH, SCOPE)
+        client = gspread.authorize(creds)
         
-        # Tenta ler alguns dados para confirmar o acesso
-        dados = worksheet.get_all_records()
+        # Abre a planilha
+        sheet = client.open("RespostasForm")  # Nome da planilha no Google Sheets
         
-        return {
-            "status": "OK",
-            "mensagem": f"Planilhas acessadas com sucesso! {len(dados)} registros encontrados.",
-            "dados": dados[:5]  # Retorna os primeiros 5 registros como exemplo
-        }
+        # Lista de abas esperadas
+        planilhas = ["Recanto das Emas", "Gama", "Santa Maria", "Guará", "Planaltina", "Samambaia"]
+        dados = []
+        
+        # Obtém todas as abas disponíveis para logging
+        abas_disponiveis = [ws.title for ws in sheet.worksheets()]
+        logger.info(f"Abas disponíveis no Google Sheet 'RespostasForm': {abas_disponiveis}")
+
+        # Itera sobre as planilhas esperadas
+        for planilha in planilhas:
+            if planilha not in abas_disponiveis:
+                logger.warning(f"A aba '{planilha}' não foi encontrada. Pulando...")
+                continue
+            
+            try:
+                worksheet = sheet.worksheet(planilha)
+                registros = worksheet.get_all_records()
+                dados.extend(registros)
+                logger.info(f"Dados carregados da aba '{planilha}' com sucesso. Total de registros: {len(registros)}")
+            except gspread.exceptions.WorksheetNotFound as e:
+                logger.error(f"Erro ao acessar a aba '{planilha}': {e}")
+                continue
+            except Exception as e:
+                logger.error(f"Erro inesperado ao processar a aba '{planilha}': {e}")
+                continue
+
+        if not dados:
+            logger.warning("Nenhum dado foi carregado das planilhas.")
+            return []  # Retorna lista vazia se não houver dados
+
+        logger.info(f"Total de registros carregados: {len(dados)}")
+        return dados
+
+    except gspread.exceptions.SpreadsheetNotFound as e:
+        logger.error(f"Planilha 'RespostasForm' não encontrada: {e}")
+        return []
     except Exception as e:
-        return {
-            "status": "Erro",
-            "mensagem": f"Erro ao acessar planilhas: {str(e)}",
-            "dados": None
-        }
+        logger.error(f"Erro geral em diagnosticar_planilhas: {e}")
+        return []
 
 # Exportar a função
 __all__ = ['diagnosticar_planilhas']
+
+# Função auxiliar (opcional, caso queira reutilizá-la em outro contexto)
+def obter_dados_do_sheets(nome_planilha, nome_aba):
+    """
+    Função auxiliar para obter dados de uma aba específica em uma planilha do Google Sheets.
+    """
+    try:
+        creds = ServiceAccountCredentials.from_json_keyfile_name(CREDS_PATH, SCOPE)
+        client = gspread.authorize(creds)
+        planilha = client.open(nome_planilha)
+        aba = planilha.worksheet(nome_aba)
+        dados = aba.get_all_records()
+        logger.info(f"Dados obtidos da aba '{nome_aba}' na planilha '{nome_planilha}' com sucesso.")
+        return dados
+    except Exception as e:
+        logger.error(f"Erro ao acessar o Google Sheets - Planilha: {nome_planilha}, Aba: {nome_aba}: {e}")
+        return None

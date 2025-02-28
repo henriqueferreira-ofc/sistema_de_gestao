@@ -31,7 +31,7 @@ body {
 
 /* Estilos para a barra de navegação superior */
 .navbar {
-  background-color: #3498db; /* Cor azul */
+  background-color: #0d6efd; /* Cor azul */
   padding: 10px 20px;
   display: flex;
   justify-content: space-between;
@@ -47,7 +47,7 @@ body {
 }
 
 .navbar a:hover {
-  background-color: #2980b9; /* Cor azul escuro */
+  background-color: #0d6efd; /* Cor azul escuro */
 }
 
 .dashboard-grid {
