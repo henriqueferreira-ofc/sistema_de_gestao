@@ -12,7 +12,7 @@ load_dotenv()
 SCOPE = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 
 # Caminho padrão para as credenciais (ajuste para o arquivo real)
-DEFAULT_CREDENTIALS_PATH = r"C:\Users\henri\OneDrive\Documentos\SEPD DOCUMENTOS\credenciais\sistemadegestaopolitica-abc123.json"
+DEFAULT_CREDENTIALS_PATH = r"C:\Users\henri\OneDrive\Documentos\SEPD DOCUMENTOS\credenciais\sistemadegestaopolitica-268f7f9c5ed0.json"
 
 # Tenta carregar o caminho das credenciais de uma variável de ambiente, se não usa o padrão
 CREDENTIALS_PATH = os.getenv("GOOGLE_CREDENTIALS_PATH", DEFAULT_CREDENTIALS_PATH)
