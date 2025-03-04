@@ -25,7 +25,7 @@ FORM_SHEETS = {
     "Recanto das Emas": SHEET.worksheet("Recanto das Emas"),
     "Gama": SHEET.worksheet("Gama"),
     "Santa Maria": SHEET.worksheet("Santa Maria"),
-    "Guará": SHEET.worksheet("Guará"),  # Corrigido o nome da planilha
+    "Guará": SHEET.worksheet("Guara"),  # Corrigido o nome da planilha
     "Planaltina": SHEET.worksheet("Planaltina"),
     "Samambaia": SHEET.worksheet("Samambaia")
 }
