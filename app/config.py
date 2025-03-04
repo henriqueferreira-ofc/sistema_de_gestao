@@ -11,13 +11,18 @@ load_dotenv()
 # Definir o escopo correto para acessar o Google Sheets
 SCOPE = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 
-# Carregar credenciais do Google Sheets a partir das variáveis de ambiente
-credentials_json = os.getenv('GOOGLE_SHEETS_CREDENTIALS')
-if credentials_json is None:
-    raise ValueError("As credenciais do Google Sheets não foram encontradas nas variáveis de ambiente.")
+# Caminho padrão para as credenciais
+DEFAULT_CREDENTIALS_PATH = r"C:\Users\henri\OneDrive\Documentos\SEPD DOCUMENTOS\credenciais\sistemadegestaopolitica-abc123.json"
 
-credentials_dict = json.loads(credentials_json)
-CREDS = ServiceAccountCredentials.from_json_keyfile_dict(credentials_dict, SCOPE)
+# Tenta carregar o caminho das credenciais de uma variável de ambiente, se não usa o padrão
+CREDENTIALS_PATH = os.getenv("GOOGLE_CREDENTIALS_PATH", DEFAULT_CREDENTIALS_PATH)
+
+# Verifica se o arquivo existe
+if not os.path.exists(CREDENTIALS_PATH):
+    raise FileNotFoundError(f"Arquivo de credenciais não encontrado em: {CREDENTIALS_PATH}. Configure a variável de ambiente GOOGLE_CREDENTIALS_PATH ou coloque o arquivo no caminho padrão.")
+
+# Carrega as credenciais
+CREDS = ServiceAccountCredentials.from_json_keyfile_name(CREDENTIALS_PATH, SCOPE)
 CLIENT = gspread.authorize(CREDS)
 SHEET = CLIENT.open("RespostasForm")
 
@@ -25,7 +30,7 @@ FORM_SHEETS = {
     "Recanto das Emas": SHEET.worksheet("Recanto das Emas"),
     "Gama": SHEET.worksheet("Gama"),
     "Santa Maria": SHEET.worksheet("Santa Maria"),
-    "Guará": SHEET.worksheet("Guará"),  # Corrigido o nome da planilha
+    "Guará": SHEET.worksheet("Guará"),
     "Planaltina": SHEET.worksheet("Planaltina"),
     "Samambaia": SHEET.worksheet("Samambaia")
 }
