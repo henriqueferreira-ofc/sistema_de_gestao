@@ -11,7 +11,7 @@ load_dotenv()
 # Definir o escopo correto para acessar o Google Sheets
 SCOPE = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 
-# Caminho padrão para as credenciais
+# Caminho padrão para as credenciais (ajuste para o arquivo real)
 DEFAULT_CREDENTIALS_PATH = r"C:\Users\henri\OneDrive\Documentos\SEPD DOCUMENTOS\credenciais\sistemadegestaopolitica-abc123.json"
 
 # Tenta carregar o caminho das credenciais de uma variável de ambiente, se não usa o padrão
@@ -26,6 +26,7 @@ CREDS = ServiceAccountCredentials.from_json_keyfile_name(CREDENTIALS_PATH, SCOPE
 CLIENT = gspread.authorize(CREDS)
 SHEET = CLIENT.open("RespostasForm")
 
+# Configuração das planilhas
 FORM_SHEETS = {
     "Recanto das Emas": SHEET.worksheet("Recanto das Emas"),
     "Gama": SHEET.worksheet("Gama"),
