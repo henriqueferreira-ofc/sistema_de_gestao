@@ -15,7 +15,7 @@ SCOPE = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/au
 DEFAULT_CREDENTIALS_PATH = r"C:\Users\henri\OneDrive\Documentos\SEPD DOCUMENTOS\credenciais\sistemadegestaopolitica-268f7f9c5ed0.json"
 
 # Tenta carregar o caminho das credenciais de uma variável de ambiente, se não usa o padrão
-CREDENTIALS_PATH = os.getenv("GOOGLE_CREDENTIALS_PATH", DEFAULT_CREDENTIALS_PATH)
+CREDENTIALS_PATH = os.getenv("GOOGLE_CREDENTIALS_PATH", 'C:\\path\\to\\your\\credentials.json')
 
 # Verifica se o arquivo existe
 if not os.path.exists(CREDENTIALS_PATH):
