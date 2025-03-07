@@ -29,16 +29,7 @@ FORM_SHEETS = {
     "Recanto das Emas": SHEET.worksheet("Recanto das Emas"),
     "Gama": SHEET.worksheet("Gama"),
     "Santa Maria": SHEET.worksheet("Santa Maria"),
-    "Guará": SHEET.worksheet("Guará"),
+    "Guara": SHEET.worksheet("Guara"),
     "Planaltina": SHEET.worksheet("Planaltina"),
     "Samambaia": SHEET.worksheet("Samambaia")
 }
-
-# Configurações adicionais (se necessário)
-class DevelopmentConfig:
-    DEBUG = True
-    SECRET_KEY = 'def0b2c640836714df10bc20639bd0344575a2fe'
-
-class ProductionConfig:
-    DEBUG = False
-    SECRET_KEY = os.getenv('def0b2c640836714df10bc20639bd0344575a2fe')

@@ -94,6 +94,33 @@
             </div>
           </div>
         </div>
+
+        <!-- Gráfico 5: Tipos de Deficiência -->
+        <div class="col-md-6 mb-4">
+          <div class="card h-100">
+            <div class="card-body">
+              <div id="grafico-deficiencia" class="grafico"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gráfico 6: Atendimentos -->
+        <div class="col-md-6 mb-4">
+          <div class="card h-100">
+            <div class="card-body">
+              <div id="grafico-atendimentos" class="grafico"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gráfico 7: Pontos de Melhoria -->
+        <div class="col-md-6 mb-4">
+          <div class="card h-100">
+            <div class="card-body">
+              <div id="grafico-melhoria" class="grafico"></div>
+            </div>
+          </div>
+        </div>
       </div>
       {% endif %}
     </div>
@@ -108,6 +135,34 @@
         Plotly.newPlot('grafico-servicos', {{ graficos.servicos_cidade.data | tojson }}, {{ graficos.servicos_cidade.layout | tojson }});
         Plotly.newPlot('grafico-politica-cidade', {{ graficos.politica_cidade.data | tojson }}, {{ graficos.politica_cidade.layout | tojson }});
         Plotly.newPlot('grafico-servicos-interesse', {{ graficos.servicos_interesse.data | tojson }}, {{ graficos.servicos_interesse.layout | tojson }});
+
+        Plotly.newPlot('grafico-deficiencia', [{
+            x: {{ graficos['Tipos de Deficiência'].x | tojson }},
+            y: {{ graficos['Tipos de Deficiência'].y | tojson }},
+            type: 'bar'
+        }]);
+
+        Plotly.newPlot('grafico-atendimentos', [{
+            values: {{ graficos['Atendimentos'].values | tojson }},
+            labels: {{ graficos['Atendimentos'].labels | tojson }},
+            type: 'pie'
+        }]);
+
+        {% if 'Interesse em Política' in graficos %}
+        Plotly.newPlot('grafico-interesse', [{
+            x: {{ graficos['Interesse em Política'].x | tojson }},
+            y: {{ graficos['Interesse em Política'].y | tojson }},
+            type: 'bar'
+        }]);
+        {% endif %}
+
+        {% if 'Pontos de Melhoria' in graficos %}
+        Plotly.newPlot('grafico-melhoria', [{
+            x: {{ graficos['Pontos de Melhoria'].x | tojson }},
+            y: {{ graficos['Pontos de Melhoria'].y | tojson }},
+            type: 'bar'
+        }]);
+        {% endif %}
       {% endif %}
     </script>
   </body>

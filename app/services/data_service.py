@@ -149,159 +149,31 @@ def gerar_graficos():
         return {'erro': str(e)}
 
 def obter_dados_planilha():
-    """
-    Função para obter dados de todas as abas (cidades) da planilha
-    """
     try:
-        # Abrir a planilha
-        planilha = CLIENT.open("RespostasForm")
+        # Obter todos os registros da planilha
+        registros = obter_dados_do_sheets()
         
-        # Definir o cabeçalho na ordem desejada
-        cabecalho_desejado = [
-            'Cidade de Origem',
-            'Nome',
-            'Telefone',
-            'Qual Deficiência',
-            'Conhece os Atendimentos',
-            'Benefício que você Precisa',
-            'Ficou sabendo da Carreta',
-            'Por Quem',
-            'Política',
-            'Carimbo de Data/Hora'
-        ]
-        
-        # Mapeamento para padronizar os nomes das colunas
-        mapeamento_colunas = {
-            # Mapeamento para campos de telefone
-            'Telefone': 'Telefone',
-            'Qual seu telefone?': 'Telefone',
-            'Número de telefone': 'Telefone',
-            
-            # Mapeamento para campos de deficiência
-            'Qual o tipo de deficiência?': 'Qual Deficiência',
-            'Qual tipo de deficiência': 'Qual Deficiência',
-            'Tipo de deficiência': 'Qual Deficiência',
-            
-            # Mapeamento para conhecimento dos atendimentos
-            'Você conhece todos os atendimentos e serviços oferecidos pela SEPD (Secretaria da Pessoa com Deficiência)?': 'Conhece os Atendimentos',
-            'Conhece os Atendimentos': 'Conhece os Atendimentos',
-            'Você conhece os atendimentos?': 'Conhece os Atendimentos',
-            
-            # Mapeamento para benefícios
-            'Qual benefício você precisa': 'Benefício que você Precisa',
-            'Benefício que você Precisa': 'Benefício que você Precisa',
-            'Qual benefício precisa?': 'Benefício que você Precisa',
-            
-            # Mapeamento para informação sobre a carreta
-            'Ficou sabendo da Carreta': 'Ficou sabendo da Carreta',
-            'Como ficou sabendo da carreta?': 'Ficou sabendo da Carreta',
-            
-            # Mapeamento para fonte da informação
-            'Por quem': 'Por Quem',
-            'Porque Quem': 'Porque Quem',
-            'Por qual meio?': 'Porque Quem',
-            
-            # Mapeamento para interesse em política
-            'Interesse em Política': 'Política',
-            'Política': 'Política',
-            'Tem interesse em política?': 'Política',
-            
-            # Outros mapeamentos existentes
-            'Carimbo de data/hora': 'Carimbo de Data/Hora'
-        }
-        
-        # Mapeamento das abas por cidade
-        abas_cidades = {
-            "Recanto das Emas": planilha.worksheet("Recanto das Emas"),
-            "Gama": planilha.worksheet("Gama"),
-            "Santa Maria": planilha.worksheet("Santa Maria"),
-            "Guará": planilha.worksheet("Guara"),
-            "Planaltina": planilha.worksheet("Planaltina"),
-            "Samambaia": planilha.worksheet("Samambaia")
-        }
-        
-        # Coletar dados de todas as abas
-        todos_registros = []
+        # Extrair cabeçalho
+        cabecalho = registros[0].keys() if registros else []
+
+        # Calcular estatísticas por cidade
         estatisticas_cidades = {}
-        
-        for cidade, worksheet in abas_cidades.items():
-            try:
-                print(f"Processando dados de {cidade}...")
-                dados_aba = worksheet.get_all_records()
-                
-                # Debug: mostrar as colunas da planilha
-                if dados_aba:
-                    print(f"Colunas em {cidade}:", list(dados_aba[0].keys()))
-                
-                for registro in dados_aba:
-                    registro_processado = {'Cidade de Origem': cidade}
-                    
-                    # Processar nome
-                    nome = None
-                    for chave in registro:
-                        if 'Qual seu nome?' in chave or 'Nome' in chave:
-                            valor = registro[chave]
-                            if isinstance(valor, str) and valor.strip():
-                                nome = valor.strip()
-                                break
-                    registro_processado['Nome'] = nome if nome else 'Não informado'
-                    
-                    # Processar deficiência - usando o nome exato da coluna
-                    tipo_deficiencia = None
-                    for chave in registro:
-                        if 'Qual o tipo de deficiência?' in chave:
-                            valor = registro[chave]
-                            if isinstance(valor, str):
-                                tipo_deficiencia = valor.strip()
-                                break
-                    registro_processado['Qual Deficiência'] = tipo_deficiencia if tipo_deficiencia else 'Não informado'
-                    
-                    # Processar todos os outros campos usando o mapeamento
-                    for chave_original, valor in registro.items():
-                        for padrao, padronizado in mapeamento_colunas.items():
-                            if padrao.lower() in chave_original.lower():
-                                if isinstance(valor, str):
-                                    valor = valor.strip()
-                                registro_processado[padronizado] = valor if valor != '' else 'Não informado'
-                                break
-                    
-                    todos_registros.append(registro_processado)
-                
-                estatisticas_cidades[cidade] = len(dados_aba)
-                print(f"Encontrados {len(dados_aba)} registros em {cidade}")
-                
-            except Exception as e:
-                print(f"Erro ao processar aba {cidade}: {str(e)}")
-                continue
-        
-        if not todos_registros:
-            return {'cabecalho': [], 'registros': [], 'erro': 'Nenhum dado encontrado'}
-        
-        # Padronizar todos os registros
-        registros_padronizados = []
-        for registro in todos_registros:
-            registro_padrao = {}
-            for coluna in cabecalho_desejado:
-                registro_padrao[coluna] = registro.get(coluna, 'Não informado')
-            registros_padronizados.append(registro_padrao)
-        
-        print(f"Total de registros processados: {len(registros_padronizados)}")
-        
-        # Debug: mostrar exemplo de registro processado
-        if registros_padronizados:
-            print("\nExemplo de registro processado:")
-            print(f"Deficiência: {registros_padronizados[0].get('Qual Deficiência', 'Não informado')}")
-        
+        for registro in registros:
+            cidade = registro.get('Cidade de Origem', 'Não especificada')
+            estatisticas_cidades[cidade] = estatisticas_cidades.get(cidade, 0) + 1
+
+        # Calcular total de registros
+        total_registros = len(registros)
+
         return {
-            'cabecalho': cabecalho_desejado,
-            'registros': registros_padronizados,
-            'total_registros': len(registros_padronizados),
-            'estatisticas_cidades': estatisticas_cidades
+            'cabecalho': cabecalho,
+            'registros': registros,
+            'estatisticas_cidades': estatisticas_cidades,
+            'total_registros': total_registros
         }
-        
     except Exception as e:
-        print(f"Erro ao obter dados das planilhas: {str(e)}")
-        return {'cabecalho': [], 'registros': [], 'erro': str(e)}
+        print(f"Erro ao obter dados da planilha: {str(e)}")
+        return {'erro': str(e)}
 
 # Exportar a função
 __all__ = ['gerar_graficos']
