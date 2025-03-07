@@ -10,8 +10,8 @@ load_dotenv()
 # Definir o escopo correto para acessar o Google Sheets
 SCOPE = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 
-# Caminho padrão para as credenciais
-DEFAULT_CREDENTIALS_PATH = r"C:\Users\henri\OneDrive\Documentos\SEPD DOCUMENTOS\credenciais\sistemadegestaopolitica-268f7f9c5ed0.json"
+# Caminho do arquivo de credenciais
+CREDENTIALS_PATH = 'C:\\Users\\henri\\OneDrive\\Documentos\\SEPD DOCUMENTOS\\credenciais\\sistemadegestaopolitica-def0b2c64083.json'
 
 # Tenta carregar o caminho das credenciais de uma variável de ambiente, se não usa o padrão
 CREDENTIALS_PATH = os.getenv("GOOGLE_CREDENTIALS_PATH", DEFAULT_CREDENTIALS_PATH)
@@ -33,3 +33,12 @@ FORM_SHEETS = {
     "Planaltina": SHEET.worksheet("Planaltina"),
     "Samambaia": SHEET.worksheet("Samambaia")
 }
+
+# Configurações adicionais (se necessário)
+class DevelopmentConfig:
+    DEBUG = True
+    SECRET_KEY = 'def0b2c640836714df10bc20639bd0344575a2fe'
+
+class ProductionConfig:
+    DEBUG = False
+    SECRET_KEY = os.getenv('def0b2c640836714df10bc20639bd0344575a2fe')

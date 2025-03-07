@@ -9,7 +9,7 @@ import plotly.graph_objects as go
 SCOPE = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 
 # Ajustando o caminho para a estrutura correta
-CREDENTIALS_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "google_sheets", "credentials.json")
+CREDENTIALS_PATH = 'C:\\Users\\henri\\OneDrive\\Documentos\\SEPD DOCUMENTOS\\credenciais\\sistemadegestaopolitica-def0b2c64083.json'
 
 CREDS = ServiceAccountCredentials.from_json_keyfile_name(CREDENTIALS_PATH, SCOPE)
 

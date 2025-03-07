@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 # Caminho para o arquivo credentials.json
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # Diretório raiz do projeto
-CREDS_PATH = os.path.join(BASE_DIR, "google_sheets", "credentials.json")
+CREDS_PATH = 'C:\\Users\\henri\\OneDrive\\Documentos\\SEPD DOCUMENTOS\\credenciais\\sistemadegestaopolitica-def0b2c64083.json'
 
 # Verifique se o arquivo credentials.json existe
 if not os.path.exists(CREDS_PATH):
