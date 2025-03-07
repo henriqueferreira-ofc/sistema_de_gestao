@@ -152,23 +152,24 @@ def obter_dados_planilha():
     try:
         # Obter todos os registros da planilha
         registros = obter_dados_do_sheets()
+        print(registros)  # Adicione este print para verificar os dados no console
         
-        # Extrair cabeçalho
-        cabecalho = registros[0].keys() if registros else []
-
         # Calcular estatísticas por cidade
         estatisticas_cidades = {}
+        servicos_por_cidade = {}
         for registro in registros:
             cidade = registro.get('Cidade de Origem', 'Não especificada')
             estatisticas_cidades[cidade] = estatisticas_cidades.get(cidade, 0) + 1
+            servicos_por_cidade[cidade] = servicos_por_cidade.get(cidade, 0) + 1
 
         # Calcular total de registros
         total_registros = len(registros)
 
         return {
-            'cabecalho': cabecalho,
+            'cabecalho': registros[0].keys() if registros else [],
             'registros': registros,
             'estatisticas_cidades': estatisticas_cidades,
+            'servicos_por_cidade': servicos_por_cidade,
             'total_registros': total_registros
         }
     except Exception as e:

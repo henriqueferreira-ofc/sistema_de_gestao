@@ -63,10 +63,7 @@
 
       {% if erro %}
       <div class="alert alert-danger" role="alert">{{ erro }}</div>
-      {% else %}
-      <pre>{{ dados | safe }}</pre>
-      <!-- Adicione esta linha para exibir os dados brutos -->
-      {% if dados and dados.registros %}
+      {% else %} {% if dados and dados.registros %}
       <div class="mb-4">
         <div class="row">
           <div class="col-md-6">
@@ -104,6 +101,38 @@
               </div>
               <div class="card-body">
                 <h3>{{ dados.total_registros }} registros</h3>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mb-4">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="card">
+              <div class="card-header">
+                <h5 class="card-title mb-0">Serviços por Cidade</h5>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-sm">
+                    <thead>
+                      <tr>
+                        <th>Cidade</th>
+                        <th>Quantidade de Serviços</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for cidade, quantidade in
+                      dados.servicos_por_cidade.items() %}
+                      <tr>
+                        <td>{{ cidade }}</td>
+                        <td>{{ quantidade }}</td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           </div>

@@ -17,9 +17,11 @@ from dash import Dash
 from flask import Flask, render_template
 from flask import Flask
 from app.routes.diagnostic import diagnostic_bp
+from app.routes.data_routes import data_bp
 
 app = Flask(__name__)
 app.register_blueprint(diagnostic_bp)
+app.register_blueprint(data_bp, url_prefix='/')
 
 if __name__ == '__main__':
     app.run(debug=True)
@@ -430,3 +432,4 @@ if __name__ == "__main__":
 
     #http://127.0.0.1:8080
     #python run.py
+    #.\venv\Scripts\activate

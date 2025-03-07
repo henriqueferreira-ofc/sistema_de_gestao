@@ -9,7 +9,7 @@ def exibir_dados():
         dados = obter_dados_planilha()
         if 'erro' in dados:
             return render_template('dados.html', erro=dados['erro'])
-        print(dados)  # Adicione este print para verificar os dados no console
+        # print(dados)  # Comente ou remova esta linha
         return render_template('dados.html', dados=dados, erro=None)
     except Exception as e:
         return render_template('dados.html', erro=str(e))
