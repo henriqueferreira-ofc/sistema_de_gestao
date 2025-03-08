@@ -109,6 +109,6 @@
 .buttons-excel:hover,
 .buttons-pdf:hover,
 .buttons-print:hover {
-  background-color: #2980b9 !important; /* Azul escuro no hover */
+  background-color: #063657 !important; /* Azul escuro no hover */
   color: white !important;
 }
